@@ -23,7 +23,7 @@ public:
         for (int source = 0; source < size; ++source) {
             for (int destination = 0; destination < size; ++destination) {
                 int weight = graph[source][destination];
-                if(weight != -1){
+                if(weight != NONE){
                     edges->push_back(new Edge(source, destination, weight));
                 }
             }
@@ -73,7 +73,7 @@ public:
         for(int i=0;i<size;i++)
         {
             answer[i]=new int[size];
-            initializeArrayWith(answer[i], size, -1);
+            initializeArrayWith(answer[i], size, NONE);
         }
         return answer;
     }
@@ -110,7 +110,7 @@ public:
 
         g1[3][4]=5;
 
-        static const int r1[] = {0,0,0,1,2};
+        static const int r1[] = {NULL,0,0,1,2};
 
         int** g2 = _initGraph(5);
         g2[0][1]=1;
@@ -122,7 +122,7 @@ public:
 
         g2[3][4]=3;
 
-        static const int r2[] = {0,0,0,2,3};
+        static const int r2[] = {NULL,0,0,2,3};
 
 
         int* a1 = getShortestPath(g1, 5, 0);

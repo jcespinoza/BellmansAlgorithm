@@ -19,49 +19,52 @@ using namespace std;
 
 class BellmanTest {
 public:
-    int* getShortestPath(int** graph, int size, int origin)
-    {
-        int* distances = new int[size];
-        int* predecessors = new int[size];
-
-        vector<Edge*> edges;
-
-        for (int index = 0; index < size; ++index) {
-            for (int kindex = 0; kindex < size; ++kindex) {
-                int currentValue = graph[index][kindex];
-                if(currentValue != -1){
-                    edges.push_back(new Edge(index, kindex, currentValue));
+    void initializeEdges(int** graph, int size, vector<Edge*>* edges){
+        for (int source = 0; source < size; ++source) {
+            for (int destination = 0; destination < size; ++destination) {
+                int weight = graph[source][destination];
+                if(weight != -1){
+                    edges->push_back(new Edge(source, destination, weight));
                 }
             }
         }
+    }
+
+    int* getShortestPath(int** graph, int size, int origin)
+    {
+        int* distances = new int[size];
+
+        vector<Edge*> edges;
+        initializeEdges(graph, size, &edges);
 
         initializeArrayWith(distances, size, INFINITY);
-        initializeArrayWith(predecessors, size, NONE);
 
         distances[origin] = 0;
 
         for (int i = 0; i < size - 1; ++i) {
             for (int index = 0; index < edges.size(); ++index) {
-                int vertexU = edges[index]->source;
-                int vertexV = edges[index]->destination;
-                int edgeWeight = edges[index]->weight;
-                if( distances[vertexU] + edgeWeight < distances[vertexV]){
-                    distances[vertexV] = distances[vertexU] + edgeWeight;
-                    predecessors[vertexV] = vertexU;
+                if(shorterPathExist(distances, *edges[index])){
+                    updateDistanceArray(distances, *edges[index]);
                 }
             }
         }
 
         for (int index = 0; index < edges.size(); ++index) {
-            int vertexU = edges[index]->source;
-            int vertexV = edges[index]->destination;
-            int edgeWeight = edges[index]->weight;
-            if( distances[vertexU] + edgeWeight < distances[vertexV]){
+            if(shorterPathExist(distances, *edges[index])){
                 throw std::runtime_error("Graph contains a negative-weight cycle");
             }
         }
-        
+
         return distances;
+    }
+
+    void updateDistanceArray(int *distances, Edge edge) {
+        distances[edge.destination] = distances[edge.source] + edge.weight;
+    }
+
+    bool shorterPathExist(const int *distances, Edge edge) {
+        return distances[edge.source] != INFINITY
+               && distances[edge.source] + edge.weight < distances[edge.destination];
     }
 
     int** _initGraph(int size)
@@ -107,7 +110,7 @@ public:
 
         g1[3][4]=5;
 
-        static const int r1[] = {NULL,0,0,1,2};
+        static const int r1[] = {0,0,0,1,2};
 
         int** g2 = _initGraph(5);
         g2[0][1]=1;
@@ -119,7 +122,7 @@ public:
 
         g2[3][4]=3;
 
-        static const int r2[] = {NULL,0,0,2,3};
+        static const int r2[] = {0,0,0,2,3};
 
 
         int* a1 = getShortestPath(g1, 5, 0);

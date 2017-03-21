@@ -20,24 +20,30 @@ using namespace std;
 class BellmanTest {
 public:
     void initializeEdges(int** graph, int size, vector<Edge*>* edges){
+        int edgeCount = 0;
         for (int source = 0; source < size; ++source) {
             for (int destination = 0; destination < size; ++destination) {
                 int weight = graph[source][destination];
                 if(weight != NONE){
+                    edgeCount++;
                     edges->push_back(new Edge(source, destination, weight));
+                    cout << "ADDING EDGE: " << source << " -> " << destination << " : " << weight << "\n";
                 }
             }
         }
+        cout << "Added " << edgeCount << " edges \n\n";
     }
 
     int* getShortestPath(int** graph, int size, int origin)
     {
         int* distances = new int[size];
+        int* predecessors = new int[size];
 
         vector<Edge*> edges;
         initializeEdges(graph, size, &edges);
 
         initializeArrayWith(distances, size, INFINITY);
+        initializeArrayWith(predecessors, size, 0);
 
         distances[origin] = 0;
 
@@ -45,6 +51,7 @@ public:
             for (int index = 0; index < edges.size(); ++index) {
                 if(shorterPathExist(distances, *edges[index])){
                     updateDistanceArray(distances, *edges[index]);
+                    predecessors[edges[index]->destination] = edges[index]->source;
                 }
             }
         }
@@ -55,7 +62,7 @@ public:
             }
         }
 
-        return distances;
+        return predecessors;
     }
 
     void updateDistanceArray(int *distances, Edge edge) {
@@ -85,15 +92,7 @@ public:
     }
 
 
-    bool compare(int* a, int* b, int size)
-    {
-        for(int i=0;i<size;i++)
-        {
-            if(a[i]!=b[i])
-                return false;
-        }
-        return true;
-    }
+    bool compare(int* a, int* b, int size) { for(int i=0;i<size;i++) if(a[i]!=b[i]) return false; return true; }
 
 
     void test()
@@ -110,7 +109,7 @@ public:
 
         g1[3][4]=5;
 
-        static const int r1[] = {NULL,0,0,1,2};
+        static const int r1[] = {0,0,0,1,2};
 
         int** g2 = _initGraph(5);
         g2[0][1]=1;
@@ -122,7 +121,7 @@ public:
 
         g2[3][4]=3;
 
-        static const int r2[] = {NULL,0,0,2,3};
+        static const int r2[] = {0,0,0,2,3};
 
 
         int* a1 = getShortestPath(g1, 5, 0);
